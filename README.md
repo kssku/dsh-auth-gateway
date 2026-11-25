@@ -39,6 +39,60 @@ DSH Web（默认 `127.0.0.1:3080`）用一次性 token 换 30 天 Cookie。直�
 
 所以「日志被清、日志轮转、权限不对」都不会再让网关失联。
 
+## 认证：默认开放，按需加锁
+
+默认 `auth.mode: none` —— 网关不做任何认证，直接放行（Host 自己的会话就是凭证）。
+
+需要加锁时，三档现成模式 + 一个完全自定义入口：
+
+### basic
+
+```yaml
+auth:
+  mode: basic
+  basic: { username: admin, password: change-me }
+```
+
+浏览器会弹原生登录框；密码用常量时间比较。
+
+### header
+
+```yaml
+auth:
+  mode: header
+  header: { name: x-gateway-token, value: your-long-secret }
+```
+
+适合给脚本、上游反代、监控探针用。
+
+### custom —— 自己写认证代码
+
+```yaml
+auth:
+  mode: custom
+  custom:
+    module: /srv/me/my-auth.mjs
+```
+
+`my-auth.mjs` 只要导出 `authenticate(req)`，返回 `true/false`（也可以返回 Promise）：
+
+```js
+// /srv/me/my-auth.mjs
+export function authenticate(req) {
+  const key = req.headers['x-api-key']
+  return key === process.env.MY_KEY
+}
+```
+
+不想落文件也可以，插件实例上直接注册：
+
+```js
+gateway.use((req) => req.headers['x-inline'] === '1')
+```
+
+拒绝语义：认证不通过 `401`；模块抛错 `403`；模块没进到 `503`。
+**WebSocket 升级请求走同一套认证**，不会从 upgrade 通道绕过去。
+
 ## 安全模型（先读这段）
 
 - 这个插件**不放宽 DSH 的授权**：它复用的是 Host 本来就信任的本地会话。
@@ -89,6 +143,7 @@ systemctl restart dsh-web-root
 | `targetPort` | `3080` | 上游 DSH 端口 |
 | `tokenLog` | `/var/log/dsh-web.log` | 内部认证不可用时的 token 回退来源 |
 | `cookieCache` | `~/.dsh/auth-gateway-cookie` | 会话缓存文件（0600）；设为 `""` 可禁用 |
+| `auth` | `{ mode: "none" }` | 认证模式：`none` / `basic` / `header` / `custom` |
 
 改完重启 DSH 生效。
 
