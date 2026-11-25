@@ -121,7 +121,8 @@ gateway.use((req) => req.headers['x-inline'] === '1')
 dsh plugin --profile web add github:kssku/dsh-auth-gateway
 
 # 或本地开发：把仓库链接进 profile 的 node_modules
-ln -s /srv/repos/GitHub/dsh-auth-gateway /srv/dsh/profiles/web/node_modules/dsh-auth-gateway
+mkdir -p /srv/dsh/profiles/web/node_modules/@kssku
+ln -s /srv/repos/GitHub/dsh-auth-gateway /srv/dsh/profiles/web/node_modules/@kssku/dsh-auth-gateway
 ```
 
 然后在该 profile 的 `package.json` 里把 `@kssku/dsh-auth-gateway` 加进 `dsh.profile.bundles`，重启 DSH。插件会由自带的 `cordis.patch.yml` 插入一行 `auth-gateway`。
