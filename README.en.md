@@ -31,7 +31,7 @@ HTTP/WebSocket request — so a browser needs no token and no cookie.
 dsh plugin --profile web add github:kssku/dsh-auth-gateway
 ```
 
-Add `dsh-auth-gateway` to `dsh.profile.bundles` in the profile's
+Add `@kssku/dsh-auth-gateway` to `dsh.profile.bundles` in the profile's
 `package.json`, then restart DSH. The plugin inserts its own `auth-gateway`
 row through `cordis.patch.yml`.
 

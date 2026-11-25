@@ -124,7 +124,7 @@ dsh plugin --profile web add github:kssku/dsh-auth-gateway
 ln -s /srv/repos/GitHub/dsh-auth-gateway /srv/dsh/profiles/web/node_modules/dsh-auth-gateway
 ```
 
-然后在该 profile 的 `package.json` 里把 `dsh-auth-gateway` 加进 `dsh.profile.bundles`，重启 DSH。插件会由自带的 `cordis.patch.yml` 插入一行 `auth-gateway`。
+然后在该 profile 的 `package.json` 里把 `@kssku/dsh-auth-gateway` 加进 `dsh.profile.bundles`，重启 DSH。插件会由自带的 `cordis.patch.yml` 插入一行 `auth-gateway`。
 
 **从旧的独立脚本迁移**：插件和 `dsh-auth-proxy.js` 会抢同一个端口。先停掉旧进程，再启用插件：
 

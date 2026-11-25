@@ -2,4 +2,4 @@
 # The plugin listens on its own port and reverse-proxies the DSH web GUI.
 - insert:
     - id: auth-gateway
-      name: 'dsh-auth-gateway'
+      name: '@kssku/dsh-auth-gateway'
