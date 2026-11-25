@@ -1,0 +1,5 @@
+# dsh-auth-gateway bundle patch: inserts the host-only gateway row.
+# The plugin listens on its own port and reverse-proxies the DSH web GUI.
+- insert:
+    - id: auth-gateway
+      name: 'dsh-auth-gateway'
