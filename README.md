@@ -22,6 +22,23 @@ DSH Web（默认 `127.0.0.1:3080`）用一次性 token 换 30 天 Cookie。直�
 
 浏览器端因此是**零凭证**的：打开网关端口就能用。
 
+## 认证来源：哪种最稳
+
+| 方式 | 稳定性 | 说明 |
+|---|---|---|
+| `connection.authenticatedUrl()` | ★★★★★ | Host 进程内直取本进程的 launchToken（只在内存、不落盘），不依赖日志、不受日志轮转影响 |
+| 持久 cookie 缓存 | ★★★★☆ | cookie 由持久 secret 签名、有效期按 `cookieMaxAgeDays`（天数级）。换到一次后缓存到磁盘，重启直接复用，只有 401 才重建 |
+| 日志 `token=` | ★★☆☆☆ | 只在打印启动 URL 时出现，依赖日志存在、未轮转、可读；仅作兜底 |
+| 自己用 secret 签 cookie | ★★★☆☆ | secret 在 credentials 的 `client-connection/browser-session`，可读；但 cookie payload 属内部实现，升级易坏，不建议 |
+
+本插件的取用顺序是 **进程内 token → 缓存 cookie → 日志 token**：
+
+- 正常重启：直接用缓存 cookie，连 token 都不用换；
+- 缓存超期或 secret 轮换：才走一次 token 换取；
+- 只有在 Host 内部接口不可用时，日志才作为最后兜底。
+
+所以「日志被清、日志轮转、权限不对」都不会再让网关失联。
+
 ## 安全模型（先读这段）
 
 - 这个插件**不放宽 DSH 的授权**：它复用的是 Host 本来就信任的本地会话。
@@ -71,6 +88,7 @@ systemctl restart dsh-web-root
 | `targetHost` | `127.0.0.1` | 上游 DSH 地址 |
 | `targetPort` | `3080` | 上游 DSH 端口 |
 | `tokenLog` | `/var/log/dsh-web.log` | 内部认证不可用时的 token 回退来源 |
+| `cookieCache` | `~/.dsh/auth-gateway-cookie` | 会话缓存文件（0600）；设为 `""` 可禁用 |
 
 改完重启 DSH 生效。
 
