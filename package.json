@@ -1,11 +1,12 @@
 {
   "name": "dsh-auth-gateway",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Zero-credential gateway for DeepSeek Harness web GUI: a standalone reverse proxy that obtains a valid DSH session inside the host process and injects it into every HTTP/WebSocket request, so browsers need no token or cookie. 免认证访问网关（DSH 插件）。",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
     ".": "./lib/index.js",
+    "./client": "./lib/client.js",
     "./package.json": "./package.json"
   },
   "files": [
@@ -17,6 +18,9 @@
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
     }
   },
   "engines": {
